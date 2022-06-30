@@ -1,0 +1,154 @@
+module oneTOtwodecode(
+    input a,
+    input En,
+    output y0,
+    output y1
+    );
+
+   assign y0 = En? a: 0;
+   assign y1 = En? ~a: 0;
+   
+endmodule
+
+module testdecoder2(
+
+    );
+    logic a,en,y0,y1;
+    oneTOtwodecode test(a,en,y0,y1);
+    initial begin
+    for(int i = 1; i <4; i++)
+    begin
+    { a,en} = i;
+    #10;
+    end
+    end
+endmodule
+
+module twoTOfourDecoder(
+    input a,
+    input b,
+    output y0,
+    output y1,
+    output y2,
+    output y3
+    );
+    
+  
+   logic w0,w1;
+   oneTOtwodecode d0(a,1,w0,w1);
+   oneTOtwodecode d1(b,w0,y0,y1);
+   oneTOtwodecode d2(b,w1,y2,y3); 
+endmodule
+
+module testdecode4(
+    );
+    logic a,b,y0,y1,y2,y3;
+    twoTOfourDecoder test(a,b,y0,y1,y2,y3);
+    initial begin
+      a = 0; b = 0; #10;
+      a = 0; b = 1; #10;
+      a = 1; b = 0; #10;
+      a = 1; b = 1; #10;
+   end
+endmodule
+
+module twoToOneMux(
+    input logic i1,i0,s,
+    output logic d
+    );
+    assign d = s?i1:i0;
+endmodule
+
+module testmux2();
+    reg i1; reg i0; reg s;
+    wire d;
+    mux2 test (i1,i0,s,d);
+    initial begin
+    #10 s=0; i1= 0; i0=0;
+    #10 s=0; i1=0;i0=1;
+    #10 s=0; i1=1;i0=0;
+    #10 s=0; i1=1;i0=1;
+    #10 s=1; i1=0;i0=1;
+    #10 s=1; i1=0;i0=1;
+    #10 s=1; i1=1;i0=0;
+    #10 s=1; i1=1;i0=1;
+    end
+endmodule;
+
+module fourToOneMux(
+    input logic i3, i2, i1, i0, s1, s0,
+    wire d1,d0,
+    output logic y
+    );
+    twoToOneMux m0(i3,i2,s0,d1);
+    twoToOneMux m1(i1,i0,s0,d0);
+    twoToOneMux m2(d1,d0,s1,y);
+endmodule
+
+module testMux4(
+
+    );
+    
+    logic i3, i2, i1, i0, s1, s0,y;
+    fourToOneMux test( i3, i2, i1, i0, s1, s0,y);
+    initial begin
+        for(int i = 1; i <= 64; i++)
+        begin
+        { i3, i2, i1, i0, s1, s0} = i;
+        #10;
+        end
+    end
+endmodule
+
+module eightToOneMux(
+    input logic i7,i6,i5,i4,i3,i2,i1,i0,s2,s1,s0,
+    output logic y
+    );
+    
+    wire mux1,mux0,and3,and2,and1,and0;
+    fourToOneMux fourmux0(i0,i1,i2,i3,s0,s1,and0);
+    fourToOneMux fourmux1(i4,i5,i6,i7,s0,s1,and1);
+    assign and2 = and0 & ~s2;
+    assign and3 = and1 & s2;
+    assign y = and2 | and3;
+     
+endmodule
+
+module testEightmux(
+
+    );
+    logic i7,i6,i5,i4,i3,i2,i1,i0,s2,s1,s0,y;
+    eightToOneMux test(i7,i6,i5,i4,i3,i2,i1,i0,s2,s1,s0,y);
+   initial begin
+        for (int i = 1; i <= 2048; i++) 
+        begin
+            {i7, i6, i5, i4, i3, i2, i1, i0, s2, s1, s0} = i;
+            #10;
+        end
+    end  
+endmodule
+
+module LabCalculator(
+    input A,
+    input B,
+    input C,
+    input D,
+    output y
+    );
+  
+    assign y = (C&~A&D) || (~A &B&D) ||(A&~D);
+  
+endmodule
+
+module testLab(
+    );
+    logic a,b,c,d,y;
+    LabCalculator test (a,b,c,d,y);
+    initial begin 
+    for(int i = 1; i <= 16; i++)
+        begin
+            {a,b,c,d} = i ;
+            #10;
+        end    
+    end
+endmodule
